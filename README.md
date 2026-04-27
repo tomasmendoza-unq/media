@@ -7,12 +7,12 @@ Reusable media library extracted from the CMS backend.
 - `Media` domain model
 - `MediaService` orchestration
 - SPI contracts for image storage, YouTube resolution, and media persistence
-- Default Spring Boot adapters for Cloudinary and YouTube
+- Default Spring Boot adapters for Cloudinary, YouTube, and MongoDB
 
 ## Build
 
 ```powershell
-./mvnw.cmd -f shared-media/pom.xml clean install
+mvn clean install
 ```
 
 ## Maven dependency
@@ -28,7 +28,7 @@ Reusable media library extracted from the CMS backend.
 ## Notes
 
 - The library is standalone and can be moved to a dedicated repository without changing its POM.
-- The current CMS still consumes it through the Maven reactor while the extraction is stabilized.
 - Required properties for the default adapters:
   - `cloudinary.url`
   - `youtube.api.key`
+  - `spring.data.mongodb.uri` in the consuming app when using the Mongo adapter
