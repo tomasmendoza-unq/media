@@ -1,0 +1,49 @@
+package com.cms.services.impl;
+
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import com.cms.exception.MediaAssetNotFoundException;
+import com.cms.model.testimonial.Media;
+import com.cms.services.ImageService;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Map;
+
+public class ImageServiceImpl implements ImageService {
+
+    private final Cloudinary cloudinary;
+
+    public ImageServiceImpl(Cloudinary cloudinary) {
+        this.cloudinary = cloudinary;
+    }
+
+    @Override
+    public Media guardarImagen(MultipartFile image) {
+        if (image == null || image.isEmpty()) {
+            return null;
+        }
+
+        try {
+            Map<?, ?> result = cloudinary.uploader().upload(image.getBytes(), ObjectUtils.emptyMap());
+            return Media.builder()
+                    .publicId((String) result.get("public_id"))
+                    .url((String) result.get("secure_url"))
+                    .build();
+        } catch (IOException e) {
+            throw new RuntimeException("Error al guardar la imagen", e);
+        }
+    }
+
+    @Override
+    public void deleteImage(String publicId) {
+        try {
+            Map<?, ?> result = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+            if (!"ok".equals(result.get("result"))) {
+                throw new MediaAssetNotFoundException(Media.class.getSimpleName(), publicId);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error al conectar con el servidor para eliminar la imagen", e);
+        }
+    }
+}
